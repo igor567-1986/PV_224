@@ -1,3 +1,4 @@
+п»ї#define _CRT_SECURE_NO_WARNINGS
 #include<iostream>
 #include<fstream>
 #include<string>
@@ -11,15 +12,16 @@ using std::endl;
 #define tab "\t"
 #define delimiter "\n--------------------------------------------------------------------\n"
 
+#define STD_STRING_PARCE
 const std::map<int, std::string> violation =
 {
-	{0, "Проезд на красный"},
-	{1, "Превышение скорости"},
-	{2, "Парковка в неположеном месте"},
-	{3, "Езда по встречной полосе"},
-	{4, "Оскорбление офицера"},
-	{5, "Езда в нетрзвом состоянии"},
-	{6, "Дрифт на перекрестке"}
+	{0, "РџСЂРѕРµР·Рґ РЅР° РєСЂР°СЃРЅС‹Р№"},
+	{1, "РџСЂРµРІС‹С€РµРЅРёРµ СЃРєРѕСЂРѕСЃС‚Рё"},
+	{2, "РџР°СЂРєРѕРІРєР° РІ РЅРµРїРѕР»РѕР¶РµРЅРѕРј РјРµСЃС‚Рµ"},
+	{3, "Р•Р·РґР° РїРѕ РІСЃС‚СЂРµС‡РЅРѕР№ РїРѕР»РѕСЃРµ"},
+	{4, "РћСЃРєРѕСЂР±Р»РµРЅРёРµ РѕС„РёС†РµСЂР°"},
+	{5, "Р•Р·РґР° РІ РЅРµС‚СЂР·РІРѕРј СЃРѕСЃС‚РѕСЏРЅРёРё"},
+	{6, "Р”СЂРёС„С‚ РЅР° РїРµСЂРµРєСЂРµСЃС‚РєРµ"}
 };
 
 class Crime
@@ -53,9 +55,9 @@ void main()
 	setlocale(LC_ALL, "");
 	std::map<std::string, std::list<Crime>> base /*=
 	{
-		{"a777bb", {Crime(0, "Улица ленина"), Crime(6, "ул. Космонавтов"), Crime(3, "ул. Октябрьская")}},
-		{"m123ab", {Crime(2, "площадь Революции")}},
-		{"a234bb", {Crime(5, "ул. Ленина"), Crime(4, "ул. Ленина")}}
+		{"a777bb", {Crime(0, "РЈР»РёС†Р° Р»РµРЅРёРЅР°"), Crime(6, "СѓР». РљРѕСЃРјРѕРЅР°РІС‚РѕРІ"), Crime(3, "СѓР». РћРєС‚СЏР±СЂСЊСЃРєР°СЏ")}},
+		{"m123ab", {Crime(2, "РїР»РѕС‰Р°РґСЊ Р РµРІРѕР»СЋС†РёРё")}},
+		{"a234bb", {Crime(5, "СѓР». Р›РµРЅРёРЅР°"), Crime(4, "СѓР». Р›РµРЅРёРЅР°")}}
 	}*/;
 	//print(base);
 	//save(base, "base.txt");
@@ -99,28 +101,42 @@ void load(std::map<std::string, std::list<Crime>>& base, const std::string& file
 	{
 		while (!fin.eof())
 		{
-			std::string licence_plate;	//номерной знак
+			std::string licence_plate;	//РЅРѕРјРµСЂРЅРѕР№ Р·РЅР°Рє
 			std::getline(fin, licence_plate, ':');
 			if (licence_plate.empty())continue;
 			std::string all_crimes;
 			std::getline(fin, all_crimes);
-			all_crimes.erase(0, 1);	//удаляем табуляцию из строки
-			size_t start = 0;
-			size_t end = 0;
-			for (
-				start = 0, end = all_crimes.find(','); 
-				start = end+1, end = all_crimes.find(',', end+1);
-				)
+			all_crimes.erase(0, 1);	//СѓРґР°Р»СЏРµРј С‚Р°Р±СѓР»СЏС†РёСЋ РёР· СЃС‚СЂРѕРєРё;
+			
+#ifdef STD_STRING_PARCE
+			for (int start = 0, end = all_crimes.find(','); ;start = end + 1, end = all_crimes.find(',', end + 1))
 			{
 				std::string place = all_crimes.substr(start, end - start);
 				if (place[place.size() - 1] == ';')place[place.size() - 1] = 0;
 				int id = std::stoi(place);
-				place[0] = ' ';//удаляем цифру в начале строки
+				place[0] = ' ';//СѓРґР°Р»СЏРµРј С†РёС„СЂСѓ РІ РЅР°С‡Р°Р»Рµ СЃС‚СЂРѕРєРё
 				place.erase(0, place.find_first_not_of(' '));
-				Crime crime(id, place);
-				base[licence_plate].push_back(crime);
+				base[licence_plate].push_back(Crime(id,place));
 				if (end == std::string::npos)break;
-			}
+            }
+#endif // STD_STRING_PARCE
+#ifndef STD_STRING_PARSE
+				int size = all_crimes.size() + 1;
+				char* sz_buffer = new char[size] {};
+				strcpy_s(sz_buffer, size, all_crimes.c_str());
+
+				char delimetrs[] = ",;";
+				for (char* pch = strtok(sz_buffer, delimetrs); pch; pch = strtok(NULL, delimetrs))
+				{
+					int id = std::atoi(pch);
+					pch[0] = ' ';
+					while (pch[0] == ' ')
+						for (int i = 0; pch[i]; i++)pch[i] = pch[i + 1];
+				}
+				Crime crime(id, pch);
+				base[licence_plate].push_back(crime);
+				delete[] sz_buffer;
+#endif // !STD_STRING_PARSE
 		}
 		fin.close();
 	}

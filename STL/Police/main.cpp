@@ -109,11 +109,17 @@ void load(std::map<std::string, std::list<Crime>>& base, const std::string& file
 			size_t end = 0;
 			for (
 				start = 0, end = all_crimes.find(','); 
-				end != std::string::npos; 
-				start = end, end = all_crimes.find(',', end)
+				start = end+1, end = all_crimes.find(',', end+1);
 				)
 			{
-				std::string buffer = all_crimes.substr(start, end - start);
+				std::string place = all_crimes.substr(start, end - start);
+				if (place[place.size() - 1] == ';')place[place.size() - 1] = 0;
+				int id = std::stoi(place);
+				place[0] = ' ';//удаляем цифру в начале строки
+				place.erase(0, place.find_first_not_of(' '));
+				Crime crime(id, place);
+				base[licence_plate].push_back(crime);
+				if (end == std::string::npos)break;
 			}
 		}
 		fin.close();

@@ -1,7 +1,11 @@
 ﻿#define _USE_MATH_DEFINES
 #include<iostream>
+#include<ctime>
 #include<Windows.h>
 using namespace std;
+
+#define Rand rand()%400
+#define COLOR RGB (rand(),rand(),rand())
 
 namespace Geometry
 {
@@ -331,21 +335,50 @@ namespace Geometry
 			Triangle::info();
 		}
 	};
+
+Shape* Factory(int type)
+{
+	switch (type)
+	{
+	//case 1:return new Square(Rand, Rand, Rand, Rand,(Color)Rand); break;
+	case 0:return new EquilateralTriangle(Rand, rand() % 300, rand() % 300, Rand,(Color)COLOR); break;
+	case 1:return new Rectangle(Rand, rand()%300, rand() % 300, rand() % 500, Rand, (Color)COLOR); break;
+	case 2:return new Circle(Rand, rand() % 300, rand() % 300, Rand,(Color)COLOR); break;
+	
+	}
+}
 }
 
 void main()
 {
 	setlocale(LC_ALL, "");
-	//Shape shape;
-	Geometry::Square square(8, 100, 100, 11, Geometry::Color::console_red);
-	square.info();
+	////Shape shape;
+	//Geometry::Square square(8, 100, 100, 11, Geometry::Color::console_red);
+	//square.info();
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	COORD coord ;
+	SetConsoleDisplayMode(hConsole, CONSOLE_FULLSCREEN_MODE, &coord);
+	//Geometry::Rectangle rect(150, 70, 300, 100, 11, Geometry::Color::grey);
+	//rect.info();         
+	//Geometry::Circle circle(100, 500, 100, 11, Geometry::Color::yellow);
+	//circle.info();
 
-	Geometry::Rectangle rect(150, 70, 300, 100, 11, Geometry::Color::grey);
-	rect.info();
+	//Geometry::EquilateralTriangle e_try(170, 350, 200, 8, Geometry::Color::green);
+	//e_try.info();
+	srand(time(NULL));
 
-	Geometry::Circle circle(100, 500, 100, 11, Geometry::Color::yellow);
-	circle.info();
-
-	Geometry::EquilateralTriangle e_try(170, 350, 200, 8, Geometry::Color::green);
-	e_try.info();
+	const int n = 5;
+	Geometry::Shape* shape[n];
+	for (int i = 0; i < n; i++)
+	{
+		shape[i] = Geometry::Factory(rand() % 3);
+	}
+	for (int i = 0; i < n; i++)
+	{
+		shape[i]->draw();
+	}
+	for (int i = 0; i < n; i++)
+	{
+		delete shape[i];
+	}
 }
